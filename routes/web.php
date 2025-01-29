@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 
 Route::get('/', [HomeController::class, 'index']);
+Route::get('/organizations', [HomeController::class, 'search'])->name('homes.index');
+
 
 Route::middleware([
     'auth:sanctum',

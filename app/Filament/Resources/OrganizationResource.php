@@ -52,7 +52,7 @@ class OrganizationResource extends Resource
                 ])->columnSpan(2),
 
                 Section::make('Meta Information')->description('Fill meta info for the organization...')->collapsible()->schema([
-                   FileUpload::make('logo')->disk('public')->directory('/images/organizations')->required(),
+                   FileUpload::make('logo')->disk('public')->directory('/images/organizations')->image(),
                    TextInput::make('maxDiscount')->required()->numeric(),
                    TextInput::make('minDiscount')->required()->numeric(),
                 ])->columnSpan(1),

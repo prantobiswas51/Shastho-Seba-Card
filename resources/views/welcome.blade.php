@@ -124,25 +124,32 @@
     <div class="hero bg-gray-100 m-4 py-8 text-center rounded-lg">
         <div class="text-4xl font-bold">Manage Your Health Card</div>
         <div class="text-xl p-4">Choose an option below to verify or register your health card</div>
-        <div class="buttons my-4">
-            <a href="" class="bg-red-900 text-white py-4 mx-2 px-6">Health Card Verification</a>
-            <a href="" class="bg-sky-900 text-white py-4 mx-2 px-6">Health Card Registration</a>
+        <div class="buttons my-4 flex justify-center flex-col md:flex-row ">
+            <a href="" class="bg-red-900 text-white py-4 mx-2 px-6 mb-2 md:mb-0">Health Card Verification</a>
+            <a href="" class="bg-sky-900 text-white py-4 mx-2 px-6 mt-2 md:mt-0">Health Card Registration</a>
         </div>
     </div>
 
     {{-- Filter --}}
-    <form class="max-w-sm w-full mx-auto">
-        <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Search Filter</label>
-        <div class="flex"><select id="countries"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-            <option selected>Choose District</option>
-            <option value="US">Dhaka</option>
-            <option value="CA">Khulna</option>
-            <option value="FR">Faridpur</option>
-            <option value="DE">Kustia</option>
-        </select>
-        <button class="px-4 ml-4 rounded-md py-2 bg-sky-400">Filter</button></div>
-    </form>
+
+        <div class="flex flex-row">
+            <form method="GET" action="{{ route('homes.index') }}" class="flex items-center justify-center w-full max-w-md mx-auto space-x-2 p-4 bg-gray-100 rounded-lg shadow-md">
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search District, Hospital Name"
+                    value="{{ request()->query('search') }}"
+                    class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                <button
+                    type="submit"
+                    class="px-4 py-2 bg-sky-700 text-white rounded-lg hover:bg-sky-800 transition">
+                    Search
+                </button>
+            </form>
+
+        </div>
+
 
 
 
@@ -153,16 +160,18 @@
             {{-- Card Item --}}
             @foreach ($organizations as $organization)
                 <div class="rounded-lg bg-sky-100 overflow-hidden border p-4 shadow-lg">
+
                     <div class="topbar flex justify-between pb-2">
                         <div class="tl">
-                            <img width="100px" src="{{ asset('storage/' . $organization->logo) }}" alt="icon">
+                            <img style="max-width: 100px;" src="{{ asset('storage/' . $organization->logo) }}" alt="icon">
                         </div>
                         <div class="tr text-red-600">(Get {{$organization->minDiscount}} to {{$organization->maxDiscount}}% Discount)</div>
                     </div>
+
                     <div class="bottombar flex justify-between pt-2">
                         <div class="tr font-bold text-md">{{ $organization->name }}</div>
                         <div class="tl bg-white rounded-full">
-                            <a href=""><svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                            <a href="#"><svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                                 viewBox="0 0 24 24">
                                 <path fill-rule="evenodd"
@@ -171,14 +180,20 @@
                             </svg></a>
                         </div>
                     </div>
+                    <div class="bg-red-800 py-[1px] mt-2"></div>
+                    <div class="pt-2 flex">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                            <path fill-rule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd" />
+                          </svg>
+
+                          {{$organization->address}}
+                    </div>
                 </div>
             @endforeach
 
         </div>
+        {{ $organizations->links() }}
 
-        <div class="m-4 text-center ">
-        <a href="" class="text-center font-bold text-md rounded-md bg-sky-400 px-4 py-2">See More</a>
-        </div>
     </div>
 
 

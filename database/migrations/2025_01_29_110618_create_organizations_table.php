@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('address');
             $table->string('maxDiscount');
             $table->string('minDiscount');
-            $table->foreignId('district_id')->constrained()->onDelete('cascade');
-            $table->foreignId('sub_district_id')->constrained('sub_districts')->onDelete('cascade');
+            $table->foreignId('district_id')->constrained()->onDelete('cascade')->default(1);
+            $table->foreignId('sub_district_id')->constrained('sub_districts')->onDelete('cascade')->default(1);
             $table->timestamps();
         });
     }
