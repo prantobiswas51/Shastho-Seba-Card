@@ -22,7 +22,7 @@ class HomeController extends Controller
         })
         ->orWhere('address', 'like', '%' . $search . '%') // Searching in address
         ->orWhere('name', 'like', '%' . $search . '%') // Searching in organization name
-        ->paginate(10);
+        ->paginate(20);
      // Adjust the number of items per page
 
         return view('welcome', compact('organizations'));

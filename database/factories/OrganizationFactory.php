@@ -15,10 +15,10 @@ class OrganizationFactory extends Factory
             'name' => $this->faker->company,
             'logo' => 'images/organizations/' . $this->faker->unique()->uuid . '.png',
             'address' => $this->faker->address,
-            'maxDiscount' => $this->faker->numberBetween(5, 30),
-            'minDiscount' => $this->faker->numberBetween(1, 10),
-            'district_id' => $this->faker->numberBetween(1, 2), // Adjust as needed
-            'sub_district_id' => $this->faker->numberBetween(1, 2), // Adjust as needed
+            'maxDiscount' => $this->faker->numberBetween(30, 50),
+            'minDiscount' => $this->faker->numberBetween(1, 20),
+            'district_id' => $this->faker->numberBetween(1, 64), // Adjust as needed
+            'sub_district_id' => $this->faker->numberBetween(300, 400), // Adjust as needed
         ];
     }
 }

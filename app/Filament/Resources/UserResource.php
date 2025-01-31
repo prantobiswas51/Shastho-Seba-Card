@@ -46,8 +46,6 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('profile_photo_path')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('role')
                     ->searchable(),
             ])

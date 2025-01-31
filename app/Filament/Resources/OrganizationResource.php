@@ -26,7 +26,7 @@ class OrganizationResource extends Resource
 {
     protected static ?string $model = Organization::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
     public static function form(Form $form): Form
     {
@@ -37,7 +37,7 @@ class OrganizationResource extends Resource
                     TextInput::make('address')->required(),
                     Select::make('district_id')
                     ->label('District')
-                    ->options(District::all()->pluck('name', 'id'))
+                    ->options(District::all()->sortBy('name')->pluck('name', 'id'))
                     ->reactive()->required()
                     ->afterStateUpdated(fn (callable $set) => $set('sub_district_id', null)),
                     Select::make('sub_district_id')

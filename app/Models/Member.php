@@ -5,14 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Card extends Model
+class Member extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'number',
-        'type',
-        'price',
-        'status'
+        'name',
+        'fatherName',
+        'motherName',
+        'dob',
+        'nid',
+        'address',
+        'membershipId',
+        'membershipType',
     ];
 }

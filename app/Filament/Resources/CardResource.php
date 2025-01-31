@@ -6,6 +6,7 @@ use App\Filament\Resources\CardResource\Pages;
 use App\Filament\Resources\CardResource\RelationManagers;
 use App\Models\Card;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -14,11 +15,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class CardResource extends Resource
 {
     protected static ?string $model = Card::class;
-    protected static ?string $navigationGroup = 'Card Settings';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -26,11 +27,17 @@ class CardResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('hospitalName'),
-                TextInput::make('title'),
-                TextInput::make('discount'),
-                TextInput::make('link'),
-
+                TextInput::make('number')->required(),
+                Select::make('type')->options([
+                    'Silver' => 'Silver',
+                    'Gold' => 'Gold',
+                    'Platinum' => 'Platinum',
+                ])->required(),
+                TextInput::make('price')->required(),
+                Select::make('status')->options([
+                    'Active' => 'Active',
+                    'Inactive' => 'Inactive',
+                ])->required()->default('Inactive'),
             ]);
     }
 
@@ -38,11 +45,10 @@ class CardResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id'),
-                TextColumn::make('hospitalName'),
-                TextColumn::make('title'),
-                TextColumn::make('discount'),
-                TextColumn::make('link')
+                TextColumn::make('number'),
+                TextColumn::make('type'),
+                TextColumn::make('price'),
+                TextColumn::make('status')
             ])
             ->filters([
                 //

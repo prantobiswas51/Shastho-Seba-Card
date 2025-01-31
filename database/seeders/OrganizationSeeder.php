@@ -10,7 +10,6 @@ class OrganizationSeeder extends Seeder
 {
     // public function run()
     // {
-
     //     Organization::create([
     //         'name' => 'Tech Solutions',
     //         'logo' => 'images/organizations/01JJS5MMFY9J7SKEJPMD2PXJMV.png', // Adjust the path as per storage
@@ -30,8 +29,6 @@ class OrganizationSeeder extends Seeder
     //         'district_id' => 1,
     //         'sub_district_id' => 2,
     //     ]);
-
-
     // }
 
     public function run()
