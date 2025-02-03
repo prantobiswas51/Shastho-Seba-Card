@@ -2,66 +2,185 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CardResource\Pages;
-use App\Filament\Resources\CardResource\RelationManagers;
-use App\Models\Card;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\Card;
+use App\Models\User;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Symfony\Contracts\Service\Attribute\Required;
+use App\Filament\Resources\CardResource\Pages;
 
 class CardResource extends Resource
 {
     protected static ?string $model = Card::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Cards';
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can create
+    }
+
+    public static function canEdit($record): bool
+    {
+        return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can edit
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('number')->required(),
-                Select::make('type')->options([
-                    'Silver' => 'Silver',
-                    'Gold' => 'Gold',
-                    'Platinum' => 'Platinum',
-                ])->required(),
-                TextInput::make('price')->required(),
-                Select::make('status')->options([
-                    'Active' => 'Active',
-                    'Inactive' => 'Inactive',
-                ])->required()->default('Inactive'),
+                Section::make('User Information')
+                    ->schema([
+                        Select::make('user_id')
+                            ->label('Select User')
+                            ->relationship('user', 'name')
+                            ->required(),
+                    ]),
+
+                Section::make('Card Details')
+                    ->schema([
+                        Repeater::make('cards')
+                            ->label('Cards')
+                            ->schema([
+                                TextInput::make('number')
+                                    ->label('Number')
+                                    ->required()
+                                    ->numeric(),
+                                Select::make('type')
+                                    ->label('Type')
+                                    ->options([
+                                        'gold' => 'Gold',
+                                        'silver' => 'Silver',
+                                        'platinum' => 'Platinum',
+                                    ])
+                                    ->required(),
+                                TextInput::make('price')
+                                    ->label('Price')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(0),
+                            ])
+                            ->defaultItems(10)
+                            ->columns(3),
+                    ]),
+
+                // Transfer Button at the Bottom
+                \Filament\Forms\Components\Actions::make([
+                    \Filament\Forms\Components\Actions\Action::make('transfer')
+                        ->label('Send Card to Assigned User')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(function ($livewire) {
+                            $data = $livewire->form->getState(); // Get the form data
+                            static::transferCards($data);
+                        }),
+                ])->columnSpanFull(),
             ]);
+    }
+
+    public static function transferCards(array $data)
+    {
+        // Check if user is selected
+        if (empty($data['user_id'])) {
+            Notification::make()
+                ->title('Error')
+                ->danger()
+                ->body('Please select a user before transferring.')
+                ->send();
+            return;
+        }
+
+        $user = User::find($data['user_id']);
+
+        if (!$user) {
+            Notification::make()
+                ->title('Error')
+                ->danger()
+                ->body('Selected user not found.')
+                ->send();
+            return;
+        }
+
+        // Check if there are cards to transfer
+        if (empty($data['cards'])) {
+            Notification::make()
+                ->title('Error')
+                ->danger()
+                ->body('No cards to transfer.')
+                ->send();
+            return;
+        }
+
+        // Transfer each card
+        foreach ($data['cards'] as $card) {
+            try {
+                Card::create([
+                    'user_id' => $user->id,
+                    'number' => $card['number'],
+                    'type' => $card['type'],
+                    'price' => $card['price'],
+                    'status' => 'Inactive', // Default status
+                ]);
+            } catch (\Exception $e) {
+                Notification::make()
+                    ->title('Error')
+                    ->danger()
+                    ->body('Failed to create card: ' . $e->getMessage())
+                    ->send();
+                return;
+            }
+        }
+
+        Notification::make()
+            ->title('Transfer Successful')
+            ->success()
+            ->body('Cards have been assigned to the selected user.')
+            ->send();
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('number'),
-                TextColumn::make('type'),
+                TextColumn::make('number')->searchable(),
+                TextColumn::make('type')->searchable(),
                 TextColumn::make('price'),
-                TextColumn::make('status')
+                TextColumn::make('status'),
             ])
             ->filters([
-                //
+                SelectFilter::make('type')
+                    ->options([
+                        'gold' => 'Gold',
+                        'silver' => 'Silver',
+                        'platinum' => 'Platinum',
+                    ])
+                    ->default('') // Default filter for 'Gold'
+                    ->label('Filter by Type'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make()->visible(fn (Card $record) => $record->isAssignedToCurrentUser()),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])->modifyQueryUsing(function (Builder $query) {
+                // Only show cards assigned to the current user
+                $query->where('user_id', auth()->id());
+            });
     }
 
     public static function getRelations(): array
@@ -76,6 +195,7 @@ class CardResource extends Resource
         return [
             'index' => Pages\ListCards::route('/'),
             'create' => Pages\CreateCard::route('/create'),
+            'view' => Pages\ViewCard::route('/{record}'), // Add the view page
             'edit' => Pages\EditCard::route('/{record}/edit'),
         ];
     }

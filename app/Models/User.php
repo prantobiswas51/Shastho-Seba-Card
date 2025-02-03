@@ -46,6 +46,12 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === self::ROLE_ONLYADMIN;
     }
 
+    public function cards()
+{
+    return $this->hasMany(Card::class);
+}
+
+
     protected $fillable = [
         'name',
         'email',
