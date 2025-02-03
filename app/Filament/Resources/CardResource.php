@@ -8,6 +8,7 @@ use App\Models\User;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\CardTransaction;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
@@ -92,63 +93,69 @@ class CardResource extends Resource
 
     public static function transferCards(array $data)
     {
-        // Check if user is selected
-        if (empty($data['user_id'])) {
+        if (empty($data['user_id']) || empty($data['cards'])) {
             Notification::make()
                 ->title('Error')
                 ->danger()
-                ->body('Please select a user before transferring.')
+                ->body('User or cards missing.')
                 ->send();
             return;
         }
 
         $user = User::find($data['user_id']);
-
-        if (!$user) {
+        if (!$user || $user->role !== 'admin') {
             Notification::make()
                 ->title('Error')
                 ->danger()
-                ->body('Selected user not found.')
+                ->body('Invalid user selection.')
                 ->send();
             return;
         }
 
-        // Check if there are cards to transfer
-        if (empty($data['cards'])) {
-            Notification::make()
-                ->title('Error')
-                ->danger()
-                ->body('No cards to transfer.')
-                ->send();
-            return;
-        }
+        // Count card types
+        $cardCounts = ['silver' => 0, 'gold' => 0, 'platinum' => 0];
 
-        // Transfer each card
         foreach ($data['cards'] as $card) {
-            try {
-                Card::create([
-                    'user_id' => $user->id,
-                    'number' => $card['number'],
-                    'type' => $card['type'],
-                    'price' => $card['price'],
-                    'status' => 'Inactive', // Default status
-                ]);
-            } catch (\Exception $e) {
-                Notification::make()
-                    ->title('Error')
-                    ->danger()
-                    ->body('Failed to create card: ' . $e->getMessage())
-                    ->send();
-                return;
+            if (isset($cardCounts[$card['type']])) {
+                $cardCounts[$card['type']]++;
             }
+        }
+
+        // Format the data
+        $formattedCards = sprintf(
+            "Silver = %d, Gold = %d, Platinum = %d, Total = %d",
+            $cardCounts['silver'],
+            $cardCounts['gold'],
+            $cardCounts['platinum'],
+            array_sum($cardCounts)
+        );
+
+        // Save transaction details
+        CardTransaction::create([
+            'superadmin_id' => auth()->id(),
+            'admin_id' => $user->id,
+            'cards' => $formattedCards, // Save as a string
+        ]);
+
+        // Assign Cards
+        foreach ($data['cards'] as $card) {
+            Card::create([
+                'user_id' => $user->id,
+                'number' => $card['number'],
+                'type' => $card['type'],
+                'price' => $card['price'],
+                'status' => 'Inactive',
+            ]);
         }
 
         Notification::make()
             ->title('Transfer Successful')
             ->success()
-            ->body('Cards have been assigned to the selected user.')
+            ->body('Cards assigned to the user and transaction saved.')
             ->send();
     }
+
+
 
     public static function table(Table $table): Table
     {
@@ -171,7 +178,7 @@ class CardResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make()->visible(fn (Card $record) => $record->isAssignedToCurrentUser()),
+                Tables\Actions\ViewAction::make()->visible(fn(Card $record) => $record->isAssignedToCurrentUser()),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -195,8 +202,9 @@ class CardResource extends Resource
         return [
             'index' => Pages\ListCards::route('/'),
             'create' => Pages\CreateCard::route('/create'),
-            'view' => Pages\ViewCard::route('/{record}'), // Add the view page
+            // 'view' => Pages\ViewCard::route('/{record}'), // Add the view page
             'edit' => Pages\EditCard::route('/{record}/edit'),
         ];
     }
 }
+

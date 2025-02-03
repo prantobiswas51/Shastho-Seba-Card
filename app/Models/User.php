@@ -22,28 +22,28 @@ class User extends Authenticatable implements FilamentUser
     use TwoFactorAuthenticatable;
 
     const ROLE_SUPERADMIN = 'SUPERADMIN';
-    const ROLE_ONLYADMIN = 'ONLYADMIN';
+    const ROLE_admin = 'admin';
     const ROLE_USER = 'USER';
 
     const ROLE_DEFAULT = self::ROLE_SUPERADMIN;
 
     const ROLES = [
         self::ROLE_SUPERADMIN => 'SuperAdmin',
-        self::ROLE_ONLYADMIN => 'OnlyAdmin',
+        self::ROLE_admin => 'admin',
         self::ROLE_USER => 'User'
     ];
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->isOnlyAdmin() || $this->isSuperAdmin();
+        return $this->isAdmin() || $this->isSuperAdmin();
     }
 
     public function isSuperAdmin(){
         return $this->role === self::ROLE_SUPERADMIN;
     }
 
-    public function isOnlyAdmin(){
-        return $this->role === self::ROLE_ONLYADMIN;
+    public function isAdmin(){
+        return $this->role === self::ROLE_admin;
     }
 
     public function cards()

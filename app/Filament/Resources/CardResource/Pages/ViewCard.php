@@ -36,24 +36,24 @@ class ViewCard extends ViewRecord
     protected function getContent(): string
     {
         return <<<HTML
-<div class="space-y-4">
-    <div>
-        <label class="font-bold">Card Number:</label>
-        <p>{$this->record->number}</p>
-    </div>
-    <div>
-        <label class="font-bold">Card Type:</label>
-        <p>{$this->record->type}</p>
-    </div>
-    <div>
-        <label class="font-bold">Price:</label>
-        <p>{$this->record->price}</p>
-    </div>
-    <div>
-        <label class="font-bold">Status:</label>
-        <p>{$this->record->status}</p>
-    </div>
-</div>
-HTML;
+                <div class="space-y-4">
+                    <div>
+                        <label class="font-bold">Card Number:</label>
+                        <p>{$this->record->number}</p>
+                    </div>
+                    <div>
+                        <label class="font-bold">Card Type:</label>
+                        <p>{$this->record->type}</p>
+                    </div>
+                    <div>
+                        <label class="font-bold">Price:</label>
+                        <p>{$this->record->price}</p>
+                    </div>
+                    <div>
+                        <label class="font-bold">Status:</label>
+                        <p>{$this->record->status}</p>
+                    </div>
+                </div>
+                HTML;
     }
 }

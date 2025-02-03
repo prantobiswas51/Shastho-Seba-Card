@@ -14,6 +14,7 @@ use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
+use App\Filament\Resources\CardTransactionResource;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -42,6 +43,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->darkMode(false)
             ->path('admin')
+            ->resources([
+                CardTransactionResource::class, // Register explicitly
+            ])
             ->login()
             ->colors([
                 'primary' => Color::Amber,
