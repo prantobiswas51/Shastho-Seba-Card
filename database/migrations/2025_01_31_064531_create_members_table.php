@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('members', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('fatherName');
+            $table->string('nid');
+            $table->string('dob');
+            $table->string('address');
+            $table->foreignId('admin_id')->nullable()->default(null)->constrained('users')->onDelete('cascade');
+            $table->foreignId('card_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('district_id')->constrained()->onDelete('cascade')->default(1);
+            $table->foreignId('sub_district_id')->constrained('sub_districts')->onDelete('cascade')->default(1);
             $table->timestamps();
         });
     }

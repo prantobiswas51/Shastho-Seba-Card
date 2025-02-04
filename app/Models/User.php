@@ -38,18 +38,25 @@ class User extends Authenticatable implements FilamentUser
         return $this->isAdmin() || $this->isSuperAdmin();
     }
 
-    public function isSuperAdmin(){
+    public function isSuperAdmin()
+    {
         return $this->role === self::ROLE_SUPERADMIN;
     }
 
-    public function isAdmin(){
+    public function isAdmin()
+    {
         return $this->role === self::ROLE_admin;
     }
 
     public function cards()
-{
-    return $this->hasMany(Card::class);
-}
+    {
+        return $this->hasMany(Card::class);
+    }
+
+    public function members()
+    {
+        return $this->hasMany(Member::class, 'admin_id');
+    }
 
 
     protected $fillable = [

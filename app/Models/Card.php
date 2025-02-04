@@ -27,5 +27,14 @@ class Card extends Model
     {
         return $this->user_id === Auth::id();
     }
-}
 
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function member()
+    {
+        return $this->hasOne(Member::class);
+    }
+}

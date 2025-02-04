@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Member extends Model
 {
@@ -16,7 +17,29 @@ class Member extends Model
         'dob',
         'nid',
         'address',
-        'membershipId',
-        'membershipType',
+        'district_id',
+        'sub_district_id',
+        'card_id',
+        'admin_id',
     ];
+
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
+    }
+
+    public function card()
+    {
+        return $this->belongsTo(Card::class);
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function subdistrict()
+    {
+        return $this->belongsTo(Subdistrict::class);
+    }
 }

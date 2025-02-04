@@ -15,4 +15,6 @@ class District extends Model
     {
         return $this->hasMany(SubDistrict::class);
     }
+
+
 }
