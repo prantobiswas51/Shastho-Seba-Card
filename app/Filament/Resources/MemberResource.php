@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\MemberResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\MemberResource\RelationManagers;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 
 class MemberResource extends Resource
 {
@@ -31,29 +33,40 @@ class MemberResource extends Resource
             ->schema([
                 TextInput::make('name')->required(),
                 TextInput::make('fatherName')->required(),
-                TextInput::make('nid')->required(),
-                TextInput::make('dob')->required(),
+                TextInput::make('motherName')->required(),
+                TextInput::make('nid')->required()->label('NID Number'),
+                DatePicker::make('dob')->required()->label('Date of Birth'),
                 TextInput::make('address')->required(),
+                Select::make('gender')->required()->options([
+                    'Male', 'Female', 'Others'
+                ]),
+                Select::make('religion')->required()->options([
+                    'Islam', 'Hinduism', 'Buddhism', 'Christianity', 'Others'
+                ]),
+                TextInput::make('age')->required()->numeric(),
+                FileUpload::make('member_photo')->required()->image()->disk('public')->directory('images/memberPhotos'),
+                TextInput::make('mobile')->required()->numeric(),
+
                 Select::make('card_id')
                     ->label('Assign Card')
                     ->options(fn() => auth()->user()->cards()->pluck('number', 'id'))
                     ->nullable(),
                 Hidden::make('admin_id')->default(auth()->id()),
-                 // Select District
-                 Select::make('district_id')
-                 ->label('District')
-                 ->options(District::all()->sortBy('name')->pluck('name', 'id'))
-                 ->reactive()->required()
-                 ->afterStateUpdated(fn (callable $set) => $set('sub_district_id', null)),
-                 Select::make('sub_district_id')
-                 ->label('Sub District')->required()
-                 ->options(function (callable $get) {
-                 $districtId = $get('district_id');
-                     if (!$districtId) {
-                         return SubDistrict::all()->pluck('name', 'id');
-                     }
-                     return SubDistrict::where('district_id', $districtId)->pluck('name', 'id');
-                 })->reactive(),
+                Select::make('district_id')
+                    ->label('District')
+                    ->searchable()
+                    ->options(District::all()->sortBy('name')->pluck('name', 'id'))
+                    ->reactive()->required()
+                    ->afterStateUpdated(fn(callable $set) => $set('sub_district_id', null)),
+                Select::make('sub_district_id')
+                    ->label('Sub District')->required()
+                    ->options(function (callable $get) {
+                        $districtId = $get('district_id');
+                        if (!$districtId) {
+                            return SubDistrict::all()->pluck('name', 'id');
+                        }
+                        return SubDistrict::where('district_id', $districtId)->pluck('name', 'id');
+                    })->reactive(),
             ]);
     }
 
@@ -63,7 +76,7 @@ class MemberResource extends Resource
             ->columns([
                 TextColumn::make('name'),
                 TextColumn::make('nid'),
-                TextColumn::make('name'),
+                TextColumn::make('fatherName'),
                 TextColumn::make('card.number')->label('Assigned Card'),
                 TextColumn::make('card.type')->label('Type'),
                 TextColumn::make('card.price')->label('Price'),
@@ -77,7 +90,7 @@ class MemberResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

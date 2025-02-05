@@ -47,7 +47,7 @@ class CardResource extends Resource
                         Select::make('user_id')
                             ->label('Select User')
                             ->relationship('user', 'name')
-                            ->required(),
+                            ->required()->searchable(),
                     ]),
 
                 Section::make('Card Details')

@@ -18,13 +18,16 @@ class HomeController extends Controller
 
         // Query with search filter
         $organizations = Organization::whereHas('district', function ($query) use ($search) {
-            $query->where('name', 'like', '%' . $search . '%'); // Searching district by name
+            $query->where('name', 'like', '%' . $search . '%');
         })
-        ->orWhere('address', 'like', '%' . $search . '%') // Searching in address
-        ->orWhere('name', 'like', '%' . $search . '%') // Searching in organization name
+        ->orWhere('address', 'like', '%' . $search . '%')
+        ->orWhere('name', 'like', '%' . $search . '%')
         ->paginate(20);
-     // Adjust the number of items per page
 
         return view('welcome', compact('organizations'));
+    }
+
+    public function verifyMember(){
+        echo 'feij';
     }
 }

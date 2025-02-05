@@ -16,7 +16,13 @@ class Member extends Model
         'motherName',
         'dob',
         'nid',
+        'gender',
+        'religion',
+        'mobile',
+        'member_photo',
+        'age',
         'address',
+
         'district_id',
         'sub_district_id',
         'card_id',

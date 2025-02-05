@@ -15,9 +15,16 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('fatherName');
+            $table->string('motherName');
             $table->string('nid');
             $table->string('dob');
+            $table->string('gender');
+            $table->string('religion');
+            $table->string('mobile');
+            $table->string('member_photo');
+            $table->string('age');
             $table->string('address');
+
             $table->foreignId('admin_id')->nullable()->default(null)->constrained('users')->onDelete('cascade');
             $table->foreignId('card_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('district_id')->constrained()->onDelete('cascade')->default(1);
