@@ -22,11 +22,16 @@ class Member extends Model
         'member_photo',
         'age',
         'address',
+        'family_members',
 
         'district_id',
         'sub_district_id',
         'card_id',
         'admin_id',
+    ];
+
+    protected $casts = [
+        'family_members' => 'array',
     ];
 
     public function admin()
@@ -47,5 +52,10 @@ class Member extends Model
     public function subdistrict()
     {
         return $this->belongsTo(Subdistrict::class);
+    }
+
+    public function sub_district()
+    {
+        return $this->belongsTo(SubDistrict::class);
     }
 }

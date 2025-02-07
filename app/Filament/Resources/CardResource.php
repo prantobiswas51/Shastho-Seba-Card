@@ -58,6 +58,7 @@ class CardResource extends Resource
                                 TextInput::make('number')
                                     ->label('Number')
                                     ->required()
+                                    ->unique()
                                     ->numeric(),
                                 Select::make('type')
                                     ->label('Type')

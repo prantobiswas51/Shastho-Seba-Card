@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('member_photo');
             $table->string('age');
             $table->string('address');
-
+            $table->json('family_members')->nullable();
             $table->foreignId('admin_id')->nullable()->default(null)->constrained('users')->onDelete('cascade');
             $table->foreignId('card_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('district_id')->constrained()->onDelete('cascade')->default(1);
