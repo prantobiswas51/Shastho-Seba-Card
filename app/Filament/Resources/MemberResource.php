@@ -42,7 +42,7 @@ class MemberResource extends Resource
                     TextInput::make('address')->required(),
                     Select::make('card_id')
                         ->label('Assign Card')
-                        ->options(fn() => auth()->user()->cards()->pluck('number', 'id'))
+                        ->options(fn() => \App\Models\Card::whereNotIn('id', Member::pluck('card_id'))->pluck('number', 'id'))
                         ->nullable()
                         ->afterStateUpdated(function ($state) {
                             if ($state) {
@@ -50,6 +50,7 @@ class MemberResource extends Resource
                             }
                         }),
                     Hidden::make('admin_id')->default(auth()->id()),
+
                     Select::make('district_id')
                         ->label('District')
                         ->searchable()
