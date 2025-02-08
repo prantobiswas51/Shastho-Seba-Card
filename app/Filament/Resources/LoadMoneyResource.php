@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\LoadMoneyResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LoadMoneyResource\RelationManagers;
-
+use Filament\Forms\Components\Group;
 use Filament\Tables\Columns\Summarizers\Sum;
 
 class LoadMoneyResource extends Resource
@@ -27,9 +27,9 @@ class LoadMoneyResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
 
-    protected static ?string $navigationLabel = 'Load Money';
-    protected static ?string $modelLabel = 'Add-money';
-    protected static ?string $navigationGroup = 'Fund Management';
+    protected static ?string $navigationLabel = 'Deposit Money';
+    protected static ?string $modelLabel = 'Deposit Money';
+    protected static ?string $navigationGroup = 'Funds Administration';
     protected static ?string $slug = 'load-money';
     protected static ?int $navigationSort = 1;
 
@@ -62,11 +62,20 @@ class LoadMoneyResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('amount')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Hidden::make('superadmin_id')->default(auth()->id()),
+
+                Group::make()
+                    ->schema([
+                        Section::make('Fund Wallet')
+                            ->description('Add funds to your account and watch your balance grow!')
+                            ->schema([
+                                TextInput::make('amount')
+                                    ->label('Deposit Amount')
+                                    ->required()
+                                    ->numeric()
+                                    ->default(0.00),
+                                Hidden::make('superadmin_id')->default(auth()->id()),
+                            ])
+                    ])
             ]);
     }
 
@@ -80,18 +89,16 @@ class LoadMoneyResource extends Resource
                     ->searchable()
                     ->toggleable()
                     ->sortable(),
+                TextColumn::make('superadmin.name')->label('SuperAdmin Name')
+                    ->toggleable(true)
+                    ->sortable()
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('amount')
-                    ->numeric()
-                    ->searchable()
-                    ->toggleable()
-                    ->sortable(),
-                TextColumn::make('superadmin.name')->label('SuperAdmin Name')->toggleable(),
-
-                TextColumn::make('amount')
-                    ->summarize(Sum::make()
-                        ->label('Total Load Money : ')
-                        ->money('BDT')),
-
+                ->numeric()
+                ->searchable()
+                ->toggleable()
+                ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->searchable()
@@ -101,7 +108,15 @@ class LoadMoneyResource extends Resource
                     ->dateTime()
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(true),
+                TextColumn::make('amount')
+                    ->summarize(
+                        [
+                            Sum::make()->money('BDT')
+                            ->label('Net Deposit Amonut : ')
+                        ])->label('Deposit Amonuts')
+                        ->searchable()
+                        ->sortable(),
             ])
             ->filters([
                 //
