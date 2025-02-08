@@ -58,6 +58,10 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Member::class, 'admin_id');
     }
 
+    public function load_money()
+    {
+        return $this->hasMany(LoadMoney::class);
+    }
 
     protected $fillable = [
         'name',
