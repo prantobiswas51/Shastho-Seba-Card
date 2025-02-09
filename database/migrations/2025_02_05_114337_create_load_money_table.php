@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('load_money', function (Blueprint $table) {
             $table->id();
             $table->decimal('amount', 10, 2)->default(0);
-            $table->unsignedBigInteger('superadmin_id')->nullable();
-            $table->foreign('superadmin_id')->references('id')->on('users')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('superadmin_id')->nullable()->default(null)->constrained('users')->onDelete('cascade');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });
