@@ -3,23 +3,30 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\LoadMoney;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\DB;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Group;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Notifications\Notification;
 use App\Filament\Resources\LoadMoneyResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LoadMoneyResource\RelationManagers;
-use Filament\Forms\Components\Group;
-use Filament\Tables\Columns\Summarizers\Sum;
+// use Filament\Forms\Components\Actions\Action;
+// use Filament\Tables\Actions\Action;
 
 class LoadMoneyResource extends Resource
 {
@@ -74,10 +81,75 @@ class LoadMoneyResource extends Resource
                                     ->numeric()
                                     ->default(0.00),
                                 Hidden::make('superadmin_id')->default(auth()->id()),
-                            ])
+                            ]),
+
+                        // Transfer Button at the Bottom
+                        \Filament\Forms\Components\Actions::make([
+                            \Filament\Forms\Components\Actions\Action::make('depositmoney')
+                                ->label('Deposit Money')
+                                ->color('warning')
+                                ->requiresConfirmation()
+                                ->action(function ($livewire) {
+                                    $data = $livewire->form->getState(); // Get the form data
+                                    static::depositmoney($data);
+                                }),
+                        ])->columnSpanFull(),
+
+
                     ])
             ]);
     }
+
+
+
+
+    public static function depositmoney($data)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $superadminId = Auth::id();
+            $superadmin = User::where('id', $superadminId)->where('role', 'SUPERADMIN')->firstOrFail();
+
+            if ($data['amount'] === 0 || !$superadmin) {
+                Notification::make()
+                ->title('Please Enter Amonut')
+                ->danger()
+                ->send();
+            }
+            else
+            {
+                $superadmin->increment('balance', $data['amount']);
+                LoadMoney::create([
+                    'superadmin_id' => Auth::id(),
+                    'amount' => $data['amount']
+                ]);
+                Notification::make()
+                ->title('Money Deposit Successfully')
+                ->success()
+                ->send();
+            }
+            DB::commit();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Notification::make()
+                ->title('Money Deposit Failed')
+                ->danger()
+                ->body($e->getMessage())
+                ->send();
+        }
+    }
+
+
+
+
+
+
+
+
+
 
     public static function table(Table $table): Table
     {
@@ -95,10 +167,10 @@ class LoadMoneyResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('amount')
-                ->numeric()
-                ->searchable()
-                ->toggleable()
-                ->sortable(),
+                    ->numeric()
+                    ->searchable()
+                    ->toggleable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->searchable()
@@ -113,10 +185,11 @@ class LoadMoneyResource extends Resource
                     ->summarize(
                         [
                             Sum::make()->money('BDT')
-                            ->label('Net Deposit Amonut : ')
-                        ])->label('Deposit Amonuts')
-                        ->searchable()
-                        ->sortable(),
+                                ->label('Net Deposit Amonut : ')
+                        ]
+                    )->label('Deposit Amonuts')
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
                 //

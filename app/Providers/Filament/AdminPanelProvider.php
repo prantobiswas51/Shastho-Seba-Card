@@ -7,6 +7,7 @@ use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Illuminate\Support\Facades\Auth;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Resources\UserResource;
 use Filament\Navigation\NavigationGroup;
@@ -19,11 +20,14 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Widgets\Widget;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
 {
+
+
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -35,14 +39,24 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Blog')
                     ->icon('heroicon-o-pencil'),
                 NavigationGroup::make()
-                    ->label(fn (): string => __('navigation.settings'))
+                    ->label(fn(): string => __('navigation.settings'))
                     ->icon('heroicon-o-cog-6-tooth')
                     ->collapsed(),
             ])
+            ->renderHook('panels::global-search.before', function () {
+                $user = auth()->user();
+                $balance = $user ? $user->balance : 'N/A'; // Fetch the user's balance
+
+                echo "<div class='flex items-center gap-2 p-2 bg-sky-600 rounded-xl'>
+                <span class='text-blue-600'>$balance</span>
+                <span class='font-medium'>BDT</span>
+              </div>";
+            })
             ->default()
             ->id('admin')
             ->darkMode(false)
             ->path('admin')
+
             ->resources([
                 CardTransactionResource::class, // Register explicitly
             ])
@@ -74,6 +88,5 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
-
     }
 }

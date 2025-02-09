@@ -115,22 +115,35 @@ class FundTransferResource extends Resource
             if (!$loadMoney) {
                 throw new \Exception('No funds available.');
             }
-
             $loadMoney->decrement('amount', $data['amount']);
 
-            FundTransfer::create([
-                'superadmin_id' => Auth::id(),
-                'admin_id' => $data['user_id'],
-                'amount' => $data['amount'],
-            ]);
 
+            $superadminId = Auth::id();
+            $superadmin = User::where('id', $superadminId)->where('role', 'SUPERADMIN')->firstOrFail();
 
+            $adminId = $data['user_id'];
+            $admin = User::where('id', $adminId)->where('role', 'admin')->firstOrFail();
+
+            if (!$superadmin) {
+                Notification::make()
+                    ->title('No funds available.')
+                    ->danger()
+                    ->send();
+            }else {
+                $superadmin->decrement('balance', $data['amount']);
+                $admin->increment('balance', $data['amount']);
+
+                FundTransfer::create([
+                    'superadmin_id' => Auth::id(),
+                    'admin_id' => $data['user_id'],
+                    'amount' => $data['amount'],
+                ]);
+                Notification::make()
+                    ->title('Money Sent Successfully')
+                    ->success()
+                    ->send();
+            }
             DB::commit();
-
-            Notification::make()
-                ->title('Money Sent Successfully')
-                ->success()
-                ->send();
         } catch (\Exception $e) {
             DB::rollBack();
             Notification::make()
@@ -181,7 +194,7 @@ class FundTransferResource extends Resource
                     ->dateTime()
                     ->searchable()
                     ->sortable()
-                    ->toggleable( true),
+                    ->toggleable(true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->searchable()
