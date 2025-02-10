@@ -21,12 +21,12 @@ class AppServiceProvider extends ServiceProvider
         //     asset('css/filament-custom.css'),
         // ]);
 
-        Filament::serving(function () {
-            Filament::registerUserMenuItems([
-                UserMenuItem::make()
-                    ->label(auth()->user()->role) // Display the user's role
-                    ->icon('heroicon-s-user'), // Optional: Add an icon
-            ]);
-        });
+        // Filament::serving(function () {
+        //     Filament::registerUserMenuItems([
+        //         UserMenuItem::make()
+        //             ->label(auth()->user()->role) // Display the user's role
+        //             ->icon('heroicon-s-user'), // Optional: Add an icon
+        //     ]);
+        // });
     }
 }

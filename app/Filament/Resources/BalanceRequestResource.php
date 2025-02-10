@@ -32,7 +32,7 @@ class BalanceRequestResource extends Resource
     protected static ?string $navigationLabel = 'Balance Request';
 
     protected static ?string $navigationGroup = 'Funds Administration';
-    
+
     protected static ?int $navigationSort = 2;
 
     public static function canCreate(): bool

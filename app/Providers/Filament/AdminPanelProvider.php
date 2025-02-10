@@ -46,11 +46,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook('panels::global-search.before', function () {
                 $user = auth()->user();
                 $balance = $user ? $user->balance : 'N/A'; // Fetch the user's balance
-
-                echo "<div class='flex items-center gap-2 p-2 bg-sky-600 rounded-xl'>
-                <span class='text-blue-600'>$balance</span>
-                <span class='font-medium'>BDT</span>
-              </div>";
+                echo "<div class='flex text-red-600 items-center gap-2 p-2 rounded-xl'><span class='text-blue-600'>$balance</span><span class='font-medium'>BDT</span></div>";
             })
             ->default()
             ->id('admin')

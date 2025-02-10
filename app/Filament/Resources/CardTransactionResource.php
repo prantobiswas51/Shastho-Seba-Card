@@ -14,7 +14,7 @@ use App\Filament\Resources\CardTransactionResource\Pages;
 class CardTransactionResource extends Resource
 {
     protected static ?string $model = CardTransaction::class;
-
+    protected static ?int $navigationSort = 3;
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Cards';
 

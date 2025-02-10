@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use App\Models\Card;
+use App\Models\User;
 use Filament\Tables;
 use App\Models\Member;
 use App\Models\District;
@@ -12,6 +13,7 @@ use Filament\Tables\Table;
 use App\Models\SubDistrict;
 use Filament\Resources\Resource;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
@@ -33,6 +35,8 @@ class MemberResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
+    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -51,24 +55,15 @@ class MemberResource extends Resource
                         ->afterStateUpdated(function ($state, callable $get, callable $set) {
                             if ($state) {
                                 $card = \App\Models\Card::find($state);
-                                $adminBalance = \App\Models\FundTransfer::where('admin_id', auth()->id())->value('amount');
-                                dd($adminBalance);
+                                $adminBalance = \App\Models\User::where('id', auth()->id())->value('balance');
 
-                                if ($card && $adminBalance !== null) {
-                                    // Check if balance is less than card price
-                                    if ($adminBalance < $card->price) {
-                                        $set('card_id', null); // Reset the card_id field
-                                        Notification::make()
-                                            ->title('Low Balance')
-                                            ->body('Low balance, please recharge.')
-                                            ->danger()
-                                            ->send();
-                                    } else {
-                                        // Proceed with card assignment
-                                        $card->update(['status' => 'Active']);
-                                        \App\Models\FundTransfer::where('admin_id', auth()->id())
-                                            ->decrement('amount', $card->price);
-                                    }
+                                if ($card && $adminBalance !== null && $adminBalance < $card->price) {
+                                    $set('card_id', null);
+                                    Notification::make()
+                                        ->title('Low Balance')
+                                        ->body('Low balance, please recharge.')
+                                        ->danger()
+                                        ->send();
                                 }
                             }
                         }),
