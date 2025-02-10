@@ -29,11 +29,11 @@ use Filament\Tables\Columns\Summarizers\Sum;
 class FundTransferResource extends Resource
 {
     protected static ?string $model = FundTransfer::class;
-    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-bangladeshi';
     protected static ?string $navigationLabel = 'Payment Transaction';
     protected static ?string $modelLabel = 'Payment Transfer';
     protected static ?string $navigationGroup = 'Funds Administration';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     public static function canViews(): bool
     {
