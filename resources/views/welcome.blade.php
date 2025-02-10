@@ -30,7 +30,7 @@
                     <li><a href="#" class="block py-2 px-3 text-gray-900 dark:text-white hover:text-blue-700">Contact</a>
                     </li>
                     @auth
-                    <li><a href="route('filament.admin.pages.dashboard')"
+                    <li><a href="{{ route('filament.admin.pages.dashboard') }}"
                             class="block py-2 px-3 text-gray-900 dark:text-white hover:text-blue-700">Admin Panel</a></li>
 
                     <li>
@@ -125,7 +125,7 @@
         <div class="text-xl p-4">Choose an option below to verify or register your health card</div>
         <div class="buttons my-4 flex justify-center flex-col md:flex-row ">
             <a href="{{ route('verification') }}" class="bg-red-900 text-white py-4 mx-2 px-6 mb-2 md:mb-0">Health Card Verification</a>
-            <a href="" class="bg-sky-900 text-white py-4 mx-2 px-6 mt-2 md:mt-0">Health Card Registration</a>
+            <a href="/admin/members/create" class="bg-sky-900 text-white py-4 mx-2 px-6 mt-2 md:mt-0">Health Card Registration</a>
         </div>
     </div>
 

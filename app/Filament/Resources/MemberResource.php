@@ -11,12 +11,14 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\SubDistrict;
 use Filament\Resources\Resource;
+use Illuminate\Contracts\View\View;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
@@ -40,16 +42,41 @@ class MemberResource extends Resource
                     TextInput::make('fatherName')->required(),
                     TextInput::make('motherName')->required(),
                     TextInput::make('address')->required(),
+
                     Select::make('card_id')
                         ->label('Assign Card')
-                        ->options(fn() => auth()->user()->cards()->pluck('number', 'id'))
-                        ->nullable()
-                        ->afterStateUpdated(function ($state) {
+                        ->options(fn() => \App\Models\Card::whereNotIn('id', Member::pluck('card_id'))->pluck('number', 'id'))
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
                             if ($state) {
-                                \App\Models\Card::where('id', $state)->update(['status' => 'Active']);
+                                $card = \App\Models\Card::find($state);
+                                $adminBalance = \App\Models\FundTransfer::where('admin_id', auth()->id())->value('amount');
+                                dd($adminBalance);
+
+                                if ($card && $adminBalance !== null) {
+                                    // Check if balance is less than card price
+                                    if ($adminBalance < $card->price) {
+                                        $set('card_id', null); // Reset the card_id field
+                                        Notification::make()
+                                            ->title('Low Balance')
+                                            ->body('Low balance, please recharge.')
+                                            ->danger()
+                                            ->send();
+                                    } else {
+                                        // Proceed with card assignment
+                                        $card->update(['status' => 'Active']);
+                                        \App\Models\FundTransfer::where('admin_id', auth()->id())
+                                            ->decrement('amount', $card->price);
+                                    }
+                                }
                             }
                         }),
+
+
+
                     Hidden::make('admin_id')->default(auth()->id()),
+
                     Select::make('district_id')
                         ->label('District')
                         ->searchable()
