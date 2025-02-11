@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\OrganizationResource\Pages;
 
-use App\Filament\Resources\OrganizationResource;
 use Filament\Actions;
+use Illuminate\Support\Facades\Auth;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\OrganizationResource;
 
 class ListOrganizations extends ListRecords
 {
@@ -13,7 +14,8 @@ class ListOrganizations extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Add Organization')->icon('heroicon-o-plus')->color('success')
+            ->visible(fn ($record) => Auth::user()->role === 'SUPERADMIN'),
         ];
     }
 }

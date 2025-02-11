@@ -13,7 +13,7 @@ class ListCardRequests extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label("Request Card")->icon('heroicon-o-arrow-down-on-square'),
         ];
     }
 }

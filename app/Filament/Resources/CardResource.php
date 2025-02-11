@@ -12,6 +12,7 @@ use App\Models\CardTransaction;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
@@ -37,6 +38,7 @@ class CardResource extends Resource
     {
         return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can edit
     }
+
 
     public static function form(Form $form): Form
     {
@@ -156,8 +158,6 @@ class CardResource extends Resource
             ->send();
     }
 
-
-
     public static function table(Table $table): Table
     {
         return $table
@@ -198,6 +198,7 @@ class CardResource extends Resource
         ];
     }
 
+
     public static function getPages(): array
     {
         return [
@@ -208,4 +209,3 @@ class CardResource extends Resource
         ];
     }
 }
-

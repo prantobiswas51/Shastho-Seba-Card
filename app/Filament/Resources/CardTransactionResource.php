@@ -20,7 +20,7 @@ class CardTransactionResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can view transactions
+        return Auth::user()->role === 'SUPERADMIN';
     }
 
     public static function table(Table $table): Table
@@ -31,8 +31,7 @@ class CardTransactionResource extends Resource
                 TextColumn::make('admin.name')->label('Sent To')->searchable(),
                 TextColumn::make('cards')->label('Cards')->sortable(),
                 TextColumn::make('created_at')->label('Date')->dateTime(),
-            ])
-            ->defaultSort('created_at', 'desc');
+            ])->defaultSort('created_at', 'desc');
     }
 
     public static function getPages(): array

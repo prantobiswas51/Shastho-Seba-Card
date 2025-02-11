@@ -13,7 +13,7 @@ class ListFundTransfers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Send Money to Admins')->color('success')->icon('heroicon-o-paper-airplane'),
         ];
     }
 }
