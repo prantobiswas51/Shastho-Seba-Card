@@ -106,7 +106,7 @@ class CardResource extends Resource
         }
 
         $user = User::find($data['user_id']);
-        if (!$user || $user->role !== 'admin') {
+        if (!$user || $user->role !== 'Admin') {
             Notification::make()
                 ->title('Error')
                 ->danger()

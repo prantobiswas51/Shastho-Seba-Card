@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\BalanceReport;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -26,8 +27,6 @@ use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
 {
-
-
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -45,8 +44,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->renderHook('panels::global-search.before', function () {
                 $user = auth()->user();
-                $balance = $user ? $user->balance : 'N/A'; // Fetch the user's balance
-                echo "<div class='flex text-red-600 items-center gap-2 p-2 rounded-xl'><span class='text-blue-600'>$balance</span><span class='font-medium'>BDT</span></div>";
+                $balance = $user ? $user->balance : 'N/A';
+                echo "<div class='flex items-center gap-2 p-2 rounded-xl'><span class=''>$balance</span><span class='font-medium'>BDT</span></div>";
             })
             ->default()
             ->id('admin')
@@ -64,6 +63,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+                BalanceReport::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
