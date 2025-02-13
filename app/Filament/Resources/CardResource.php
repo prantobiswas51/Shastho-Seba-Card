@@ -31,12 +31,12 @@ class CardResource extends Resource
 
     public static function canCreate(): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can create
+        return Auth::user()->role === 'SuperAdmin';
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can edit
+        return Auth::user()->role === 'SuperAdmin';
     }
 
 

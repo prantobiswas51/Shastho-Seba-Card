@@ -15,7 +15,8 @@ class ListOrganizations extends ListRecords
     {
         return [
             Actions\CreateAction::make()->label('Add Organization')->icon('heroicon-o-plus')->color('success')
-            ->visible(fn ($record) => Auth::user()->role === 'SUPERADMIN'),
+            ->visible(fn ($record) => Auth::user()->role === 'SuperAdmin'),
         ];
     }
 }
+

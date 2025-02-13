@@ -21,7 +21,7 @@ class UserResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can view transactions
+        return Auth::user()->role === 'SuperAdmin';
     }
 
     public static function form(Form $form): Form

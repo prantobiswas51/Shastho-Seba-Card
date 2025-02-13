@@ -128,7 +128,7 @@ class ListCards extends ListRecords
                         ->body('Cards generated and transaction saved successfully.')
                         ->send();
                 })
-                ->visible(fn ($record) => Auth::user()->role === 'SUPERADMIN'),
+                ->visible(fn ($record) => Auth::user()->role === 'SuperAdmin'),
         ];
     }
 }

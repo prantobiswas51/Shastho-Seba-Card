@@ -8,6 +8,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\LoadMoney;
 use Filament\Tables\Table;
+use App\Services\SmsService;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
 use Filament\Tables\Actions\Action;
@@ -19,9 +20,9 @@ use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\Summarizers\Sum;
-use Filament\Notifications\Notification;
 use App\Filament\Resources\LoadMoneyResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LoadMoneyResource\RelationManagers;
@@ -42,27 +43,27 @@ class LoadMoneyResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can view transactions
+        return Auth::user()->role === 'SuperAdmin';
     }
 
     public static function canViews(): bool
     {
-        return Auth::user()->role === 'admin'; // Only SUPERADMIN can create
+        return Auth::user()->role === 'admin';
     }
     public static function canCreate(): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can create
+        return Auth::user()->role === 'SuperAdmin';
     }
 
     // load money can edit
     public static function canEdit($record): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can edit
+        return Auth::user()->role === 'SuperAdmin';
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only SUPERADMIN can edit
+        return Auth::user()->role === 'SuperAdmin';
     }
 
     public static function form(Form $form): Form
@@ -110,28 +111,45 @@ class LoadMoneyResource extends Resource
         try {
 
             $superadminId = Auth::id();
-            $superadmin = User::where('id', $superadminId)->where('role', 'SUPERADMIN')->firstOrFail();
+            $superadmin = User::where('id', $superadminId)->where('role', 'SuperAdmin')->firstOrFail();
 
             if ($data['amount'] === 0 || !$superadmin) {
                 Notification::make()
-                ->title('Please Enter Amonut')
-                ->danger()
-                ->send();
-            }
-            else
-            {
+                    ->title('Please Enter Amonut')
+                    ->danger()
+                    ->send();
+            } else {
                 $superadmin->increment('balance', $data['amount']);
                 LoadMoney::create([
                     'superadmin_id' => Auth::id(),
                     'amount' => $data['amount']
                 ]);
+
+
+                // $smsService = app(SmsService::class);
+                // $phoneNumber = "01823744169"; // Assuming 'phone' is stored in User model
+                // $message = "Dear {$superadmin->name}, Your deposit of BDT {$data['amount']} was successful.";
+
+                // if ($smsService->sendSms($phoneNumber, $message)) {
+                //     Notification::make()
+                //         ->title('Money Deposit Successful')
+                //         ->success()
+                //         ->body('SMS notification sent.')
+                //         ->send();
+                // } else {
+                //     Notification::make()
+                //         ->title('Deposit Successful, but SMS Failed')
+                //         ->danger()
+                //         ->send();
+                // }
+
+
                 Notification::make()
-                ->title('Money Deposit Successfully')
-                ->success()
-                ->send();
+                    ->title('Money Deposit Successfully')
+                    ->success()
+                    ->send();
             }
             DB::commit();
-
         } catch (\Exception $e) {
             DB::rollBack();
             Notification::make()

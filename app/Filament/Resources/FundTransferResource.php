@@ -41,18 +41,18 @@ class FundTransferResource extends Resource
     }
     public static function canCreate(): bool
     {
-        return Auth::user()->role === 'SUPERADMIN';
+        return Auth::user()->role === 'SuperAdmin';
     }
 
     // load money can edit
     public static function canEdit($record): bool
     {
-        return Auth::user()->role === 'SUPERADMIN';
+        return Auth::user()->role === 'SuperAdmin';
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()->role === 'SUPERADMIN';
+        return Auth::user()->role === 'SuperAdmin';
     }
     public static function form(Form $form): Form
     {
@@ -119,7 +119,7 @@ class FundTransferResource extends Resource
 
 
             $superadminId = Auth::id();
-            $superadmin = User::where('id', $superadminId)->where('role', 'SUPERADMIN')->firstOrFail();
+            $superadmin = User::where('id', $superadminId)->where('role', 'SuperAdmin')->firstOrFail();
 
             $adminId = $data['user_id'];
             $admin = User::where('id', $adminId)->where('role', 'admin')->firstOrFail();

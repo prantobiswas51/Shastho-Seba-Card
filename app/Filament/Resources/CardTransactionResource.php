@@ -20,7 +20,7 @@ class CardTransactionResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()->role === 'SUPERADMIN';
+        return Auth::user()->role === 'SuperAdmin';
     }
 
     public static function table(Table $table): Table

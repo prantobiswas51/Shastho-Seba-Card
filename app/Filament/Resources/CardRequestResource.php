@@ -38,7 +38,7 @@ class CardRequestResource extends Resource
 
     public static function canEdit($record): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only super admins can approve/reject
+        return Auth::user()->role === 'SuperAdmin'; // Only super admins can approve/reject
     }
 
     public static function form(Form $form): Form
@@ -107,12 +107,12 @@ class CardRequestResource extends Resource
                             'status' => 'Inactive',
                         ]);
                     })
-                    ->visible(fn ($record) => Auth::user()->role === 'SUPERADMIN' && $record->request_status === 'pending')
+                    ->visible(fn ($record) => Auth::user()->role === 'SuperAdmin' && $record->request_status === 'pending')
                     ->modalButton('Approve'),
 
                 Action::make('reject')->icon('heroicon-o-hand-thumb-down')->color('danger')
                 ->label('Reject')
-                ->visible(fn ($record) => Auth::user()->role === 'SUPERADMIN' && $record->request_status === 'pending')
+                ->visible(fn ($record) => Auth::user()->role === 'SuperAdmin' && $record->request_status === 'pending')
                 ->action(function ($record) {
                     $record->update(['request_status' => 'rejected']);
 

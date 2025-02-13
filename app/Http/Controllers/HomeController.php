@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Card;
 use App\Models\Member;
 use App\Models\Organization;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -54,5 +55,4 @@ class HomeController extends Controller
 
         return view('verification', compact('cards'));
     }
-
 }

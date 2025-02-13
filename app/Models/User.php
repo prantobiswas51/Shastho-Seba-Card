@@ -21,21 +21,23 @@ class User extends Authenticatable implements FilamentUser
     use Notifiable;
     use TwoFactorAuthenticatable;
 
-    const ROLE_SUPERADMIN = 'SUPERADMIN';
-    const ROLE_admin = 'admin';
-    const ROLE_USER = 'USER';
+    const ROLE_SUPERADMIN = 'SuperAdmin';
+    const ROLE_SUPERVISOR = 'SuperVisor';
+    const ROLE_ADMIN = 'Admin';
+    const ROLE_USER = 'User';
 
     const ROLE_DEFAULT = self::ROLE_SUPERADMIN;
 
     const ROLES = [
         self::ROLE_SUPERADMIN => 'SuperAdmin',
-        self::ROLE_admin => 'admin',
+        self::ROLE_SUPERVISOR => 'SuperVisor',
+        self::ROLE_ADMIN => 'Admin',
         self::ROLE_USER => 'User'
     ];
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->isAdmin() || $this->isSuperAdmin();
+        return $this->isAdmin() || $this->isSuperAdmin() || $this->isSuperVisor();
     }
 
     public function isSuperAdmin()
@@ -43,9 +45,14 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === self::ROLE_SUPERADMIN;
     }
 
+    public function isSuperVisor()
+    {
+        return $this->role === self::ROLE_SUPERVISOR;
+    }
+
     public function isAdmin()
     {
-        return $this->role === self::ROLE_admin;
+        return $this->role === self::ROLE_ADMIN;
     }
 
     public function cards()
@@ -62,6 +69,12 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(LoadMoney::class);
     }
+
+    public function teams()
+{
+    return $this->belongsToMany(Team::class, 'team_admins', 'admin_id', 'team_id');
+}
+
 
     protected $fillable = [
         'name',

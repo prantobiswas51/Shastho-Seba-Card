@@ -42,12 +42,12 @@ class BalanceRequestResource extends Resource
 
     public static function canEdit($record): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only Superadmin can edit
+        return Auth::user()->role === 'SuperAdmin'; // Only Superadmin can edit
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()->role === 'SUPERADMIN'; // Only Superadmin can delete
+        return Auth::user()->role === 'SuperAdmin'; // Only Superadmin can delete
     }
 
 
@@ -61,9 +61,9 @@ class BalanceRequestResource extends Resource
                             ->description('Instead of requesting a balance, admins can request a withdrawal from the available pool.')
                             ->schema([
                                 Select::make('approved_by')
-                                    ->label('Select Superadmin')
+                                    ->label('Select Super Admin')
                                     ->relationship('approvedBy', 'name', function ($query) {
-                                        return $query->where('role', 'SUPERADMIN');
+                                        return $query->where('role', 'SuperAdmin');
                                     })
                                     ->required(),
                                 TextInput::make('amount')
@@ -120,7 +120,7 @@ class BalanceRequestResource extends Resource
                 ->color('success')
                 ->requiresConfirmation()
                 ->modalHeading('Are you sure you want to approve?')
-                ->visible(fn ($record) => Auth::user()->role === 'SUPERADMIN' && $record->status === 'pending')
+                ->visible(fn ($record) => Auth::user()->role === 'SuperAdmin' && $record->status === 'pending')
                 ->action(function ($record) {
                     $superadmin = Auth::user(); // Get the logged-in superadmin
                     $admin = $record->admin;   // Get the admin who requested the balance
@@ -157,7 +157,7 @@ class BalanceRequestResource extends Resource
             Action::make('reject')
                 ->label('Reject')
                 ->icon('heroicon-o-hand-thumb-down')
-                ->visible(fn ($record) => Auth::user()->role === 'SUPERADMIN' && $record->status === 'pending')
+                ->visible(fn ($record) => Auth::user()->role === 'SuperAdmin' && $record->status === 'pending')
                 ->action(function ($record) {
                     $record->update(['status' => 'rejected']);
 
