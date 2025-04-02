@@ -80,104 +80,99 @@ class BalanceRequestResource extends Resource
 
 
     public static function table(Table $table): Table
-{
-    return $table
-        ->query(BalanceRequest::query()->when(
-            Auth::user()->role === 'admin',
-            fn ($q) => $q->where('admin_id', Auth::id())
-        ))
-        ->columns([
-            TextColumn::make('id')
-                ->label('ID')
-                ->numeric()
-                ->searchable()
-                ->toggleable(true)
-                ->sortable(),
-            TextColumn::make('admin.name')->label('Requested By')
-                ->sortable()
-                ->searchable(),
-            TextColumn::make('amount')->label('Amount')->money('BDT')
-                ->sortable()
-                ->searchable(),
-            BadgeColumn::make('status')->colors([
-                'warning' => 'pending',
-                'success' => 'approved',
-                'danger' => 'rejected',
-            ]),
-            TextColumn::make('approvedBy.name')->label('Approved By')
-                ->sortable()
-                ->searchable()
-                ->default('-'),
-            TextColumn::make('created_at')->label('Requested At')
-                ->dateTime()
-                ->sortable()
-                ->searchable(),
-        ])
-        ->actions([
-            Action::make('approve')
-                ->label('Approve')
-                ->icon('heroicon-o-hand-thumb-up')
-                ->color('success')
-                ->requiresConfirmation()
-                ->modalHeading('Are you sure you want to approve?')
-                ->visible(fn ($record) => Auth::user()->role === 'SuperAdmin' && $record->status === 'pending')
-                ->action(function ($record) {
-                    $superadmin = Auth::user(); // Get the logged-in superadmin
-                    $admin = $record->admin;   // Get the admin who requested the balance
+    {
+        return $table
+            ->query(BalanceRequest::query()->when(
+                Auth::user()->role === 'admin',
+                fn($q) => $q->where('admin_id', Auth::id())
+            ))
+            ->columns([
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->numeric()
+                    ->searchable()
+                    ->toggleable(true)
+                    ->sortable(),
+                TextColumn::make('admin.name')->label('Requested By')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('amount')->label('Amount')->money('BDT')
+                    ->sortable()
+                    ->searchable(),
+                BadgeColumn::make('status')->colors([
+                    'warning' => 'pending',
+                    'success' => 'approved',
+                    'danger' => 'rejected',
+                ]),
+                TextColumn::make('approvedBy.name')->label('Approved By')
+                    ->sortable()
+                    ->searchable()
+                    ->default('-'),
+                TextColumn::make('created_at')->label('Requested At')
+                    ->dateTime()
+                    ->sortable()
+                    ->searchable(),
+            ])
+            ->actions([
+                Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-o-hand-thumb-up')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Are you sure you want to approve?')
+                    ->visible(fn($record) => Auth::user()->role === 'SuperAdmin' && $record->status === 'pending')
+                    ->action(function ($record) {
+                        $superadmin = Auth::user();
+                        $admin = $record->admin;
 
-                    // Ensure Superadmin has enough balance before approving
-                    if ($superadmin->balance < $record->amount) {
+                        // Ensure Superadmin has enough balance before approving
+                        if ($superadmin->balance < $record->amount) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Insufficient Balance')
+                                ->body('You do not have enough balance to approve this request.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+
+                        // Transaction: Deduct from Superadmin and Add to Admin
+                        DB::transaction(function () use ($superadmin, $admin, $record) {
+                            $superadmin->decrement('balance', $record->amount);
+                            $admin->increment('balance', $record->amount);
+
+                            // Update the balance request status
+                            $record->update([
+                                'status' => 'approved',
+                                'approved_by' => $superadmin->id,
+                            ]);
+                        });
+
                         \Filament\Notifications\Notification::make()
-                            ->title('Insufficient Balance')
-                            ->body('You do not have enough balance to approve this request.')
+                            ->title('Balance Request Approved')
+                            ->body('You have successfully approved the balance request.')
+                            ->success()
+                            ->send();
+                    }),
+
+                Action::make('reject')
+                    ->label('Reject')
+                    ->icon('heroicon-o-hand-thumb-down')
+                    ->visible(fn($record) => Auth::user()->role === 'SuperAdmin' && $record->status === 'pending')
+                    ->action(function ($record) {
+                        $record->update(['status' => 'rejected']);
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Balance Request Rejected')
+                            ->body('The balance request has been rejected.')
                             ->danger()
                             ->send();
-                        return;
-                    }
-
-                    // Transaction: Deduct from Superadmin and Add to Admin
-                    DB::transaction(function () use ($superadmin, $admin, $record) {
-                        $superadmin->decrement('balance', $record->amount);
-                        $admin->increment('balance', $record->amount);
-
-                        // Update the balance request status
-                        $record->update([
-                            'status' => 'approved',
-                            'approved_by' => $superadmin->id,
-                        ]);
-                    });
-
-                    \Filament\Notifications\Notification::make()
-                        ->title('Balance Request Approved')
-                        ->body('You have successfully approved the balance request.')
-                        ->success()
-                        ->send();
-                }),
-
-            Action::make('reject')
-                ->label('Reject')
-                ->icon('heroicon-o-hand-thumb-down')
-                ->visible(fn ($record) => Auth::user()->role === 'SuperAdmin' && $record->status === 'pending')
-                ->action(function ($record) {
-                    $record->update(['status' => 'rejected']);
-
-                    \Filament\Notifications\Notification::make()
-                        ->title('Balance Request Rejected')
-                        ->body('The balance request has been rejected.')
-                        ->danger()
-                        ->send();
-                })
-                ->requiresConfirmation()
-                ->modalHeading('Are you sure you want to reject?')
-                ->color('danger'),
-            Tables\Actions\EditAction::make()
-        ]);
-}
-
-
-
-
-
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Are you sure you want to reject?')
+                    ->color('danger'),
+                Tables\Actions\EditAction::make()
+            ]);
+    }
 
 
     public static function getPages(): array
